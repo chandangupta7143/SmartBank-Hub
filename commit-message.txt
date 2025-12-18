@@ -1,0 +1,7 @@
+feat(frontend): make Fusion Finance fully functional in frontend-only mock mode
+
+- Setup React 18 + Vite + Tailwind v4 scaffold
+- Implement Global Store (Zustand) and Theme System
+- Implement Mock Auth (Login/Signup) with localStorage persistence
+- Create Layouts (Auth and Dashboard) and Pages
+- Add UI Component Library basics

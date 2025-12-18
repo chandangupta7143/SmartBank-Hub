@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: Fusion Finance API
+  version: 1.0.0
+  description: API Contract for future backend implementation.
+servers:
+  - url: http://localhost:8080/api/v1
+paths:
+  /auth/login:
+    post:
+      summary: User Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful Login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /wallet/balance:
+    get:
+      summary: Get user balance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Balance info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance: 
+                    type: number
+                  currency: 
+                    type: string
+  /transactions:
+    get:
+      summary: Get transaction history
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                   $ref: '#/components/schemas/Transaction'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        token:
+          type: string
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        type:
+          type: string
+          enum: [deposit, withdraw, transfer, payment]

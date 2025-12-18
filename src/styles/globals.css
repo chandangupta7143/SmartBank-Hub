@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+@theme {
+    --color-brand-primary: #3b82f6;
+    /* Electric Blue */
+    --color-brand-secondary: #6366f1;
+    /* Indigo */
+    --color-brand-accent: #8b5cf6;
+    /* Violet */
+
+    --color-app-bg: #020617;
+    /* Deep Slate/Black */
+    --color-app-surface: #111111;
+    /* Off Black */
+    --color-app-surface-highlight: #1a1a1a;
+
+    --color-status-success: #10b981;
+    --color-status-error: #ff3366;
+    --color-status-warning: #ffcc00;
+    --color-status-info: #3b82f6;
+
+    --font-sans: 'Inter', system-ui, sans-serif;
+    --font-brand: 'Outfit', sans-serif;
+}
+
+:root {
+    color-scheme: dark;
+}
+
+body {
+    background-color: var(--color-app-bg);
+    background-image: radial-gradient(circle at top center, #0F172A 0%, #020617 100%);
+    background-attachment: fixed;
+    color: #ffffff;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+}
+
+/* Custom Utilities */
+@utility glass-panel {
+    background: rgba(17, 17, 17, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@utility neon-glow {
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+@utility gradient-text {
+    background: linear-gradient(to right, #3b82f6, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Reusable Form Styles */
+@utility input-field {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    width: 100%;
+    transition: all 0.2s;
+
+    &:focus {
+        outline: none;
+        border-color: var(--color-brand-primary);
+        box-shadow: 0 0 0 1px var(--color-brand-primary);
+    }
+}
+
+/* Animations */
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+@utility animate-blob {
+    animation: blob 7s infinite;
+}
+
+@utility animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+@utility animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+@utility shimmer {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+        animation: shimmer 3s infinite;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-app-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@utility animate-gradient {
+    animation: gradient 6s ease infinite;
+}
+
+@keyframes float-3d {
+
+    0%,
+    100% {
+        transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0);
+    }
+
+    25% {
+        transform: perspective(1000px) rotateX(5deg) rotateY(5deg) translateY(-10px);
+    }
+
+    50% {
+        transform: perspective(1000px) rotateX(0deg) rotateY(10deg) translateY(0);
+    }
+
+    75% {
+        transform: perspective(1000px) rotateX(-5deg) rotateY(5deg) translateY(-10px);
+    }
+}
+
+@utility animate-float-3d {
+    animation: float-3d 8s ease-in-out infinite;
+}
+
+@keyframes gloss-sweep {
+    0% {
+        transform: translateX(-150%) skewX(-20deg);
+        opacity: 0;
+    }
+
+    30% {
+        opacity: 0.5;
+    }
+
+    60% {
+        transform: translateX(150%) skewX(-20deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateX(150%) skewX(-20deg);
+        opacity: 0;
+    }
+}
+
+@utility animate-gloss-sweep {
+    animation: gloss-sweep 4s ease-in-out infinite;
+}
