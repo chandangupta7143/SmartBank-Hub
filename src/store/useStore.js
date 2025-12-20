@@ -1,10 +1,22 @@
+
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import safeStorage from '../utils/storage'
 
+// Factory function to ensure fresh state references every time
+const getInitialUserState = () => ({
+    wallet: {
+        balance: 0,
+        currency: 'USD',
+    },
+    transactions: [],
+    notifications: [],
+    showPrivacyMode: false,
+});
+
 export const useStore = create(
     persist(
-        (set) => ({
+        (set, get) => ({
             // Theme State
             theme: 'dark',
             toggleTheme: () => set((state) => {
@@ -16,14 +28,68 @@ export const useStore = create(
             // Auth State
             user: null, // { id, name, email, avatar }
             isAuthenticated: false,
-            login: (user) => set({ user, isAuthenticated: true }),
-            logout: () => set({ user: null, isAuthenticated: false }),
+
+            // Enhanced Login: Load user-specific data
+            login: (user) => {
+                console.log(`[Store] Logging in user: ${user.email} (${user.id})`);
+
+                // 1. Try to load saved data for this user
+                const storageKey = `smartbank_data_${user.id} `;
+                const savedDataJson = localStorage.getItem(storageKey);
+
+                // 2. Start with FRESH default state (Deep Copy effectively)
+                let userSpecificState = getInitialUserState();
+
+                if (savedDataJson) {
+                    try {
+                        console.log(`[Store] Found saved data for ${user.id}`);
+                        const parsed = JSON.parse(savedDataJson);
+                        // Merge saved data with defaults to ensure structure
+                        userSpecificState = { ...userSpecificState, ...parsed };
+                    } catch (e) {
+                        console.error("Failed to load user data", e);
+                    }
+                } else {
+                    console.log(`[Store] No saved data for ${user.id}, starting fresh.`);
+                }
+
+                // 3. Atomically set new state
+                set({
+                    user,
+                    isAuthenticated: true,
+                    ...userSpecificState
+                });
+            },
+
+            // Enhanced Logout: Save user data and reset
+            logout: () => {
+                const state = get();
+                const currentUser = state.user;
+
+                if (currentUser && currentUser.id) {
+                    console.log(`[Store] Logging out user: ${currentUser.email} `);
+                    // 1. Save current user data
+                    const dataToSave = {
+                        wallet: state.wallet,
+                        transactions: state.transactions,
+                        notifications: state.notifications,
+                        showPrivacyMode: state.showPrivacyMode
+                    };
+                    const storageKey = `smartbank_data_${currentUser.id} `;
+                    localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+                }
+
+                // 2. Reset state to FRESH defaults
+                console.log(`[Store] Resetting state to defaults.`);
+                set({
+                    user: null,
+                    isAuthenticated: false,
+                    ...getInitialUserState()
+                });
+            },
 
             // Wallet State (Mock)
-            wallet: {
-                balance: 0,
-                currency: 'USD',
-            },
+            wallet: getInitialUserState().wallet,
             setBalance: (amount) => set((state) => ({
                 wallet: { ...state.wallet, balance: amount }
             })),
@@ -32,7 +98,7 @@ export const useStore = create(
             })),
 
             // Transactions State
-            transactions: [],
+            transactions: getInitialUserState().transactions,
             addTransaction: (tx) => set((state) => ({
                 transactions: [tx, ...state.transactions],
                 // Update balance if compiled
@@ -46,7 +112,7 @@ export const useStore = create(
             setTransactions: (txs) => set({ transactions: txs }),
 
             // Notifications State
-            notifications: [],
+            notifications: getInitialUserState().notifications,
             addNotification: (note) => set((state) => ({ notifications: [note, ...state.notifications] })),
             clearNotifications: () => set({ notifications: [] }),
             markNotificationRead: (id) => set((state) => ({
@@ -54,27 +120,20 @@ export const useStore = create(
             })),
 
             // Preferences
-            showPrivacyMode: false,
+            showPrivacyMode: getInitialUserState().showPrivacyMode,
             togglePrivacyMode: () => set((state) => ({ showPrivacyMode: !state.showPrivacyMode })),
         }),
         {
             name: 'smartbank-storage',
             storage: createJSONStorage(() => safeStorage),
-            version: 3, // Complete System Reset
+            version: 3,
             migrate: (persistedState, version) => {
-                // Force COMPLETE reset for all users on version jump to 3
                 if (version < 3) {
                     return {
-                        theme: 'dark', // Reset theme or keep? Resetting to ensure clean slate if user messed it up.
+                        theme: 'dark',
                         user: null,
                         isAuthenticated: false,
-                        wallet: {
-                            balance: 0,
-                            currency: 'USD'
-                        },
-                        transactions: [],
-                        notifications: [],
-                        showPrivacyMode: false
+                        ...getInitialUserState()
                     };
                 }
                 return persistedState;
