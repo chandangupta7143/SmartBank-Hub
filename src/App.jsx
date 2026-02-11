@@ -1,8 +1,8 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useStore } from './store/useStore'
-import { useCurrencyStore } from './store/useCurrencyStore'
 import { useEffect } from 'react'
 import { Toaster } from 'sonner'
+import { useExchangeRates } from './hooks/queries/useCurrencyQueries'
 
 // Layouts
 import AuthLayout from './layouts/AuthLayout'
@@ -60,12 +60,13 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
     const { theme } = useStore();
-    const fetchRates = useCurrencyStore((state) => state.fetchRates);
+
+    // Fetch exchange rates on app load using React Query
+    useExchangeRates('USD');
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
-        fetchRates(); // Force fresh rates on load
-    }, [theme, fetchRates]);
+    }, [theme]);
 
     return (
         <>

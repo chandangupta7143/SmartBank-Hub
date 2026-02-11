@@ -8,8 +8,6 @@ const AdminUsers = () => {
     const { users, updateUserStatus, updateUserBalance } = useAdminStore();
     const [search, setSearch] = useState('');
     const [selectedUser, setSelectedUser] = useState(null); // For modal overlay? Or simple alert based editing
-
-    // Simple manual edit state
     const [editBalanceId, setEditBalanceId] = useState(null);
     const [newBalance, setNewBalance] = useState('');
 
@@ -77,8 +75,8 @@ const AdminUsers = () => {
                                 </td>
                                 <td className="p-4">
                                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${user.status === 'active'
-                                            ? 'bg-green-500/10 text-green-500 border border-green-500/20'
-                                            : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                        ? 'bg-green-500/10 text-green-500 border border-green-500/20'
+                                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
                                         }`}>
                                         {user.status}
                                     </span>

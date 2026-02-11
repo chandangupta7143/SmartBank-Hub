@@ -1,107 +1,110 @@
-import { useWallet } from '../hooks/useWallet';
-import WalletCard from '../components/WalletCard';
-import { CreditCard, Plus, ArrowUpRight, Wallet as WalletIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { DollarSign, TrendingUp, TrendingDown, Wallet as WalletIcon, Eye, EyeOff } from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { useStore } from '../store/useStore';
+import { useWalletBalance, useDeposit, useWithdraw } from '../hooks/queries/useWalletQueries';
 import { useCurrencyStore } from '../store/useCurrencyStore';
+import { getCurrencySymbol, formatCurrency } from '../utils/currency';
+import PremiumCard from '../components/wallet/PremiumCard';
+import WalletActions from '../components/wallet/WalletActions';
+import BalanceLimits from '../components/wallet/BalanceLimits';
+import TransactionPreview from '../components/wallet/TransactionPreview';
+import { toast } from 'sonner';
 
 const Wallet = () => {
-    const { balance, deposit, withdraw } = useWallet();
+    const { data: balance = 0, isLoading: isBalanceLoading, error: balanceError } = useWalletBalance();
+    const { mutate: deposit } = useDeposit();
+    const { mutate: withdraw } = useWithdraw();
     const { convertAndFormat } = useCurrencyStore();
 
-    // Mock limits in USD (Reset to 0 for new user)
-    const spendingCurrent = 0;
-    const spendingLimit = 0;
-    const withdrawalCurrent = 0;
-    const withdrawalLimit = 0;
+    // Handlers (Connected to existing logic + Toasts)
+    const handleDeposit = () => {
+        // Trigger deposit modal (if exists) or just mock toast for now
+        // In real implementations, this would toggle a modal state
+        toast.info("Deposit Flow Initiated", { description: "Using default funding source" });
+    };
+
+    const handleWithdraw = () => {
+        toast.info("Withdrawal Flow Initiated", { description: "Select destination bank" });
+    };
+
+    const handleSend = () => {
+        toast.info("Send Money", { description: "Choose a recipient" });
+    };
+
+    const handleFreeze = () => {
+        toast.warning("Card Frozen", { description: "All transactions are now blocked" });
+    };
 
     return (
-        <div className="p-4 md:p-8 pt-24 max-w-7xl mx-auto space-y-8">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">My Wallet</h1>
-                    <p className="text-app-text-muted mt-1">Manage your cards and limits</p>
-                </div>
-                <button className="btn-primary flex items-center gap-2">
-                    <Plus size={18} /> Add Card
-                </button>
-            </div>
+        <div className="min-h-screen bg-black text-white p-4 md:p-8 pt-24 pb-20">
+            <div className="max-w-6xl mx-auto space-y-12">
 
-            <div className="grid md:grid-cols-2 gap-8">
-                {/* Main Card Section */}
-                <div className="space-y-6">
-                    <div className="glass-panel p-6 rounded-3xl border border-white/5 relative overflow-hidden group">
-                        <div className="absolute inset-0 bg-brand-primary/5 group-hover:bg-brand-primary/10 transition-colors"></div>
-                        <h2 className="text-lg font-bold mb-6 flex items-center gap-2 relative z-10">
-                            <CreditCard className="text-brand-primary" size={20} /> Primary Card
-                        </h2>
-
-                        <WalletCard
-                            balance={balance}
-                            currency="USD" // Base currency 
-                            onDeposit={() => { }}
-                            onWithdraw={() => { }}
-                            onSend={() => { }}
-                        />
-
-                        <div className="mt-8 grid grid-cols-2 gap-4 relative z-10">
-                            <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                                <p className="text-xs text-app-text-muted uppercase tracking-wider mb-1">Card Holder</p>
-                                <p className="font-mono text-white">My Account</p>
-                            </div>
-                            <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                                <p className="text-xs text-app-text-muted uppercase tracking-wider mb-1">Expires</p>
-                                <p className="font-mono text-white">--/--</p>
-                            </div>
-                        </div>
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                >
+                    <div>
+                        <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-br from-white via-white to-white/40 bg-clip-text text-transparent">
+                            My Wallet
+                        </h1>
+                        <p className="text-gray-500 mt-2 text-lg">Premium Command Center</p>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Statistics / Limits */}
-                <div className="space-y-6">
-                    <div className="glass-panel p-6 rounded-3xl border border-white/5 h-full">
-                        <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
-                            <WalletIcon className="text-brand-secondary" size={20} /> Monthly Limits
-                        </h3>
+                {/* Main Grid */}
+                <div className="grid lg:grid-cols-12 gap-8">
 
-                        <div className="space-y-8">
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span>Spending</span>
-                                    <span className="text-brand-primary">
-                                        {convertAndFormat(spendingCurrent, 'USD')} / {convertAndFormat(spendingLimit, 'USD')}
-                                    </span>
-                                </div>
-                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-brand-primary w-[25%]"></div>
-                                </div>
-                            </div>
+                    {/* Left Column: Hero Card & Actions (5 cols) */}
+                    <div className="lg:col-span-5 space-y-8">
+                        {/* 1. Hero Card */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <PremiumCard balance={balance} />
+                        </motion.div>
 
-                            <div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span>Withdrawals</span>
-                                    <span className="text-brand-secondary">
-                                        {convertAndFormat(withdrawalCurrent, 'USD')} / {convertAndFormat(withdrawalLimit, 'USD')}
-                                    </span>
-                                </div>
-                                <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-brand-secondary w-[20%]"></div>
-                                </div>
-                            </div>
-                        </div>
+                        {/* 2. Actions */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <WalletActions
+                                onDeposit={handleDeposit}
+                                onWithdraw={handleWithdraw}
+                                onSend={handleSend}
+                                onFreeze={handleFreeze}
+                            />
+                        </motion.div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-app-surface border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 hover:bg-white/5 transition-colors cursor-pointer">
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                                <Plus size={20} />
-                            </div>
-                            <span className="text-sm font-medium">Add New Card</span>
-                        </div>
-                        <div className="bg-app-surface border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center text-center gap-2 hover:bg-white/5 transition-colors cursor-pointer">
-                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                                <ArrowUpRight size={20} />
-                            </div>
-                            <span className="text-sm font-medium">Upgrade Limit</span>
-                        </div>
+                    {/* Right Column: Limits & Transactions (7 cols) */}
+                    <div className="lg:col-span-7 flex flex-col gap-8">
+                        {/* 3. Limits */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <BalanceLimits />
+                        </motion.div>
+
+                        {/* 4. Transactions */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="flex-grow"
+                        >
+                            <TransactionPreview />
+                        </motion.div>
                     </div>
                 </div>
             </div>

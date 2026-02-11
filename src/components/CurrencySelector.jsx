@@ -1,23 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useCurrencyStore } from '../store/useCurrencyStore';
-import { ChevronDown, RefreshCw } from 'lucide-react';
+import { ChevronDown, Globe, Check, TrendingUp, ArrowRightLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCurrencySymbol } from '../utils/currency';
+import { useExchangeRates } from '../hooks/queries/useCurrencyQueries';
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'INR', 'JPY', 'AUD', 'CAD', 'CHF', 'CNY'];
+const SUPPORTED_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'INR', 'AUD', 'CAD'];
 
 const CurrencySelector = () => {
-    const { currentCurrency, setCurrency, fetchRates, lastUpdated, isLoading } = useCurrencyStore();
+    const { currentCurrency, setCurrentCurrency } = useCurrencyStore();
+    const { data: rates, isLoading } = useExchangeRates();
     const [isOpen, setIsOpen] = useState(false);
 
-    // Initial fetch on mount if no rates or empty
-    useEffect(() => {
-        // We could check if (lastUpdated) but fetching often is okay if cached
-        fetchRates();
-    }, [fetchRates]);
+    // Get currency symbol
+    const getCurrencySymbol = (code) => {
+        const symbols = {
+            USD: '$',
+            EUR: '€',
+            GBP: '£',
+            JPY: '¥',
+            INR: '₹',
+            AUD: 'A$',
+            CAD: 'C$'
+        };
+        return symbols[code] || code;
+    };
 
-    const handleSelect = (code) => {
-        setCurrency(code);
+    const handleCurrencyChange = (currency) => {
+        setCurrentCurrency(currency);
         setIsOpen(false);
     };
 
@@ -34,44 +43,48 @@ const CurrencySelector = () => {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 5 }}
-                        className="absolute top-full right-0 mt-2 w-48 bg-[#0A0F1C] border border-white/10 rounded-xl shadow-xl overflow-hidden py-1"
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full right-0 mt-2 w-64 bg-[#0A0F1C]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50"
                     >
-                        <div className="px-3 py-2 text-xs text-app-text-muted border-b border-white/5 flex flex-col gap-1">
-                            <div className="flex justify-between items-center">
-                                <span>Select Currency</span>
-                                <button onClick={(e) => { e.stopPropagation(); fetchRates(); }} className={isLoading ? 'animate-spin' : ''}>
-                                    <RefreshCw size={12} />
-                                </button>
+                        {isLoading ? (
+                            <div className="p-4 text-center text-app-text-muted text-sm">
+                                Loading rates...
                             </div>
-                            {currentCurrency !== 'USD' && (
-                                <div className="text-[10px] text-white/50 font-mono">
-                                    1 USD ≈ {useCurrencyStore.getState().getRate(currentCurrency).toFixed(2)} {currentCurrency}
-                                </div>
-                            )}
-                            {lastUpdated && (
-                                <div className="text-[10px] text-white/30">
-                                    Updated: {new Date(lastUpdated).toLocaleTimeString()}
-                                </div>
-                            )}
-                        </div>
-                        <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                            {CURRENCIES.map(code => (
-                                <button
-                                    key={code}
-                                    onClick={() => handleSelect(code)}
-                                    className={`w-full text-left px-4 py-2 text-sm hover:bg-white/5 transition-colors flex justify-between items-center ${currentCurrency === code ? 'text-brand-primary bg-brand-primary/5' : 'text-white/80'}`}
-                                >
-                                    <span>{code} <span className="text-white/30 ml-1">({getCurrencySymbol(code)})</span></span>
-                                    {currentCurrency === code && <div className="w-1.5 h-1.5 rounded-full bg-brand-primary"></div>}
-                                </button>
-                            ))}
-                        </div>
-                        {lastUpdated && (
-                            <div className="px-3 py-1.5 bg-white/[0.02] text-[10px] text-white/30 text-center">
-                                Updated: {new Date(lastUpdated).toLocaleTimeString()}
+                        ) : (
+                            <div className="p-2 space-y-1">
+                                {SUPPORTED_CURRENCIES.map((currency) => {
+                                    const rate = rates?.[currency] || '...';
+                                    return (
+                                        <motion.button
+                                            key={currency}
+                                            whileHover={{ scale: 1.02, x: 4 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => handleCurrencyChange(currency)}
+                                            className={`w-full flex items-center justify-between p-3 rounded-xl transition-all ${currentCurrency === currency
+                                                    ? 'bg-brand-primary/20 border border-brand-primary/30'
+                                                    : 'hover:bg-white/5 border border-transparent'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <span className="text-2xl">{getCurrencySymbol(currency)}</span>
+                                                <div className="text-left">
+                                                    <div className="text-sm font-semibold text-white">{currency}</div>
+                                                    {currency !== 'USD' && (
+                                                        <div className="text-xs text-app-text-muted">
+                                                            1 USD = {typeof rate === 'number' ? rate.toFixed(2) : rate} {currency}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            {currentCurrency === currency && (
+                                                <Check size={16} className="text-brand-primary" />
+                                            )}
+                                        </motion.button>
+                                    );
+                                })}
                             </div>
                         )}
                     </motion.div>

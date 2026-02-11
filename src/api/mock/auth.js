@@ -2,6 +2,17 @@ import { MockDB, STORAGE_KEYS } from './db';
 import { v4 as uuidv4 } from 'uuid';
 
 export const mockAuth = {
+    loginDemo: async () => {
+        await new Promise(r => setTimeout(r, 300));
+        return {
+            id: 'demo-user',
+            name: 'Demo User',
+            email: 'demo@smartbank.com',
+            token: 'mock-demo-token',
+            role: 'user'
+        };
+    },
+
     login: async (email, password) => {
         await new Promise(r => setTimeout(r, 600));
 

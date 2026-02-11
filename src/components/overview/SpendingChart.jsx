@@ -3,15 +3,20 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } f
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { format, subDays, subWeeks, startOfWeek } from 'date-fns';
-import { useStore } from '../../store/useStore';
 import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
 import { useCurrencyStore } from '../../store/useCurrencyStore';
-import { convertAmount } from '../../utils/currencyMath';
+import { useTransactions } from '../../hooks/queries/useTransactionQueries';
+import { useCurrencyConversion } from '../../hooks/queries/useCurrencyQueries';
 
 const SpendingChart = () => {
-    const { wallet, transactions } = useStore(); // Get transactions
-    const { currentCurrency, getRate, convertAndFormat } = useCurrencyStore();
-    const rate = getRate(currentCurrency);
+    const { data: transactionsData } = useTransactions();
+    const { currentCurrency } = useCurrencyStore();
+    const { convertAmount } = useCurrencyConversion();
+
+    // Extract all transactions from paginated structure with proper null checks
+    const transactions = transactionsData?.pages
+        ?.flatMap(page => page?.data || [])
+        ?.filter(tx => tx != null) || [];
 
     const [timeframe, setTimeframe] = useState('week');
 
@@ -47,12 +52,12 @@ const SpendingChart = () => {
             }
         });
 
-        // Convert to target currency
+        // Convert to target currency (convertAmount returns the converted value)
         return buckets.map(b => ({
             ...b,
-            val: b.val * rate
+            val: convertAmount ? convertAmount(b.val, 'USD', currentCurrency) : b.val
         }));
-    }, [timeframe, transactions, rate]);
+    }, [timeframe, transactions, convertAmount, currentCurrency]);
 
     const total = data.reduce((acc, curr) => acc + curr.val, 0);
 
@@ -66,16 +71,14 @@ const SpendingChart = () => {
             {/* Header */}
             <div className="flex justify-between items-start mb-6 z-10">
                 <div>
-                    <h3 className="text-app-text-muted text-xs font-bold uppercase tracking-widest mb-1 flex items-center gap-2">
-                        Spending Analytics
-                    </h3>
-                    <div className="flex items-baseline gap-3">
-                        <span className="text-2xl font-bold text-white max-w-[200px] truncate block">
-                            {formatCurrency(total, currentCurrency)}
-                        </span>
-                        <span className="flex items-center text-xs font-bold text-status-success bg-status-success/10 px-2 py-0.5 rounded-full">
-                            <TrendingUp size={12} className="mr-1" /> +12.5%
-                        </span>
+                    <h3 className="text-sm font-medium text-app-text-muted mb-1">Total Spent This Week</h3>
+                    <p className="text-3xl font-bold tracking-tight">
+                        {formatCurrency(total, currentCurrency)}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1 text-xs">
+                        <TrendingDown className="text-status-success" size={14} />
+                        <span className="text-status-success font-medium">12% less</span>
+                        <span className="text-app-text-muted">than last week</span>
                     </div>
                 </div>
 

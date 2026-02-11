@@ -1,20 +1,38 @@
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowDownLeft, ArrowUpRight, ShoppingBag, Coffee, Zap, Globe, CreditCard } from 'lucide-react';
-import { useStore } from '../../store/useStore';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { useCurrencyStore } from '../../store/useCurrencyStore';
-import { formatCurrency } from '../../utils/currency';
-import { format, formatDistanceToNow } from 'date-fns';
-
-const MOCK_MERCHANTS = ['Starbucks', 'Uber', 'Amazon', 'Netflix', 'Whole Foods', 'Apple', 'Spotify', 'Target'];
-const CATEGORIES = ['Shopping', 'Food', 'Bills', 'Transport', 'Entertainment'];
+import { formatDistanceToNow } from 'date-fns';
+import { useTransactions } from '../../hooks/queries/useTransactionQueries';
+import { getCurrencySymbol } from '../../utils/currency';
 
 const LiveFeed = () => {
-    const { transactions, addTransaction, wallet } = useStore();
-    const listRef = useRef(null);
+    // Use React Query to get transactions
+    const { data: transactionsData, isLoading } = useTransactions();
 
-    // Simulated WebSocket Feed
-    // List ref
+    // Extract transactions from the paginated data structure - with proper null checks
+    const allTransactions = transactionsData?.pages
+        ?.flatMap(page => page?.data || [])
+        ?.filter(tx => tx != null) || [];
+
+    // Get only the most recent 15 transactions for the feed
+    const recentTransactions = allTransactions.slice(0, 15);
+
+    if (isLoading) {
+        return (
+            <div className="bg-[#0A0F1C]/40 border border-white/5 rounded-3xl p-6 h-full flex items-center justify-center">
+                <div className="text-app-text-muted">Loading transactions...</div>
+            </div>
+        );
+    }
+
+    if (!recentTransactions || recentTransactions.length === 0) {
+        return (
+            <div className="bg-[#0A0F1C]/40 border border-white/5 rounded-3xl p-6 h-full flex items-center justify-center">
+                <div className="text-app-text-muted">No recent transactions</div>
+            </div>
+        );
+    }
 
     return (
         <motion.div
@@ -36,11 +54,11 @@ const LiveFeed = () => {
             </div>
 
             {/* List */}
-            <div className="flex-1 overflow-hidden relative" ref={listRef}>
+            <div className="flex-1 overflow-hidden relative">
                 <div className="space-y-3 h-[400px] overflow-y-auto custom-scrollbar pr-2 pb-10">
                     <AnimatePresence initial={false}>
-                        {transactions.slice(0, 15).map((tx) => (
-                            <FeedItem key={tx.id || Math.random()} tx={tx} currency={wallet.currency} />
+                        {recentTransactions.map((tx) => (
+                            <FeedItem key={tx.id || Math.random()} tx={tx} />
                         ))}
                     </AnimatePresence>
                 </div>

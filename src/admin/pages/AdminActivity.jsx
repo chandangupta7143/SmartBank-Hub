@@ -39,28 +39,13 @@ const AdminActivity = () => {
             </div>
 
             {/* Recent Jobs */}
-            <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden">
+            <div className="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden opacity-50">
                 <div className="px-6 py-4 border-b border-white/5 flex justify-between items-center">
                     <h3 className="font-bold text-white text-sm">Background Jobs</h3>
-                    <span className="text-xs text-gray-500">Live Stream (Mock)</span>
+                    <span className="text-xs text-gray-500">Idle</span>
                 </div>
-                <div className="divide-y divide-white/5">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                        <div key={i} className="px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <span className={`text-xs font-mono px-2 py-1 rounded ${i === 3 ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
-                                    {i === 3 ? 'FAILED' : 'COMPLETED'}
-                                </span>
-                                <div>
-                                    <p className="text-sm text-white font-medium">ProcessTransaction_0x{8392 + i}A</p>
-                                    <p className="text-xs text-gray-500">Queue: High-Priority • {i}s execution time</p>
-                                </div>
-                            </div>
-                            <div className="text-right text-xs text-gray-500">
-                                {new Date().toLocaleTimeString()}
-                            </div>
-                        </div>
-                    ))}
+                <div className="p-8 text-center text-gray-500 text-sm">
+                    No active background jobs processing.
                 </div>
             </div>
         </div>

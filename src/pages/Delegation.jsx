@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { mockDelegation } from '../api/mock/delegation';
+import { delegationService } from '../services/delegationService';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Users, UserPlus, Ban, History, ShieldCheck } from 'lucide-react';
@@ -13,11 +13,11 @@ const Delegation = () => {
 
     const { data: delegates, isLoading } = useQuery({
         queryKey: ['delegates'],
-        queryFn: mockDelegation.getDelegates
+        queryFn: delegationService.getDelegates
     });
 
     const addMutation = useMutation({
-        mutationFn: async () => mockDelegation.addDelegate(name, limit),
+        mutationFn: async () => delegationService.addDelegate(name, limit),
         onSuccess: () => {
             queryClient.invalidateQueries(['delegates']);
             setName('');
@@ -26,7 +26,7 @@ const Delegation = () => {
     });
 
     const revokeMutation = useMutation({
-        mutationFn: mockDelegation.revokeDelegate,
+        mutationFn: delegationService.revokeDelegate,
         onSuccess: () => queryClient.invalidateQueries(['delegates'])
     });
 

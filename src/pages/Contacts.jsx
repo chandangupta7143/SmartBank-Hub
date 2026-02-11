@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useWallet } from '../hooks/useWallet';
-import { mockTransactions } from '../api/mock/transactions';
+import { useWalletBalance } from '../hooks/queries/useWalletQueries';
+import { useCreateTransfer } from '../hooks/queries/useTransactionQueries';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Search, User, Send, Undo2, Loader2, Check } from 'lucide-react';
@@ -11,7 +11,8 @@ import { toast } from 'sonner'; // We'll just mock toast behavior again if not i
 const MOCK_CONTACTS = []; // Empty start
 
 const Contacts = () => {
-    const { wallet, setBalance } = useWallet();
+    const { data: wallet, isLoading: walletLoading } = useWalletBalance();
+    const transferMutation = useCreateTransfer();
     const queryClient = useQueryClient();
     const [search, setSearch] = useState('');
     const [selectedContact, setSelectedContact] = useState(null);
@@ -25,57 +26,28 @@ const Contacts = () => {
         c.email.toLowerCase().includes(search.toLowerCase())
     );
 
-    // Optimistic Mutation
-    const transferMutation = useMutation({
-        mutationFn: async ({ contact, amount }) => {
-            // Simulate network
-            await new Promise(r => setTimeout(r, 1000));
-            return mockTransactions.transfer(amount, contact.name, `contact-${Date.now()}`);
-        },
-        onMutate: async ({ contact, amount }) => {
-            await queryClient.cancelQueries(['wallet']);
+    const handleSend = async (e) => {
+        e.preventDefault();
+        if (!selectedContact || !amount || !wallet) return;
 
-            const previousBalance = wallet.balance;
+        try {
+            await transferMutation.mutateAsync({
+                amount,
+                recipientId: selectedContact.name,
+                idempotencyKey: `contact-${Date.now()}`
+            });
 
-            // Optimistically update balance
-            setBalance(wallet.balance - parseFloat(amount));
-
-            // Show Undo option
-            setUndoVisible(true);
-            setLastTxId(`temp-${Date.now()}`); // Mock ID
-
-            // Auto-hide undo after 5s (simulating standard undo window)
-            setTimeout(() => setUndoVisible(false), 5000);
-
-            return { previousBalance };
-        },
-        onError: (err, newTodo, context) => {
-            setBalance(context.previousBalance);
-            toast.error("Transfer Failed", { description: err.message });
-        },
-        onSuccess: () => {
-            // In real app, invalidate queries
             setSelectedContact(null);
             setAmount('');
             toast.success("Transfer sent successfully");
-        }
-    });
-
-    const handleSend = (e) => {
-        e.preventDefault();
-        if (!selectedContact || !amount) return;
-        transferMutation.mutate({ contact: selectedContact, amount });
-    };
-
-    const handleUndo = () => {
-        // Mock Revert
-        const context = transferMutation.variables;
-        if (context) {
-            setBalance(wallet.balance + parseFloat(context.amount));
-            setUndoVisible(false);
-            toast.info("Transaction Undone", { description: "Funds returned to wallet" });
+            setUndoVisible(true);
+            setTimeout(() => setUndoVisible(false), 5000);
+        } catch (err) {
+            toast.error("Transfer Failed", { description: err.message });
         }
     };
+
+
 
     return (
         <div className="grid md:grid-cols-2 gap-8 h-[calc(100vh-140px)]">
@@ -130,10 +102,7 @@ const Contacts = () => {
                                 <div className="w-16 h-16 bg-status-success/20 text-status-success rounded-full flex items-center justify-center mx-auto mb-4">
                                     <Check size={32} />
                                 </div>
-                                <p className="font-bold text-lg mb-4">Sent!</p>
-                                <Button variant="ghost" onClick={handleUndo} className="w-full text-app-text-muted hover:text-white">
-                                    <Undo2 className="mr-2" size={16} /> Undo Transfer
-                                </Button>
+                                <p className="font-bold text-lg">Sent!</p>
                             </div>
                         ) : (
                             <form onSubmit={handleSend} className="space-y-4">

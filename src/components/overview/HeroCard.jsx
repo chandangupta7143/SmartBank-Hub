@@ -3,15 +3,14 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { Eye, EyeOff, Copy, ArrowUpRight, ArrowDownLeft, Send, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCurrencyStore } from '../../store/useCurrencyStore';
+import { formatCurrency } from '../../utils/currency';
 
 const HeroCard = ({ balance, currency: baseCurrencyProp, onDeposit, onWithdraw, onSend }) => {
     const [showBalance, setShowBalance] = useState(true);
-    const { convertAndFormat, currentCurrency, getRate } = useCurrencyStore();
+    const { currentCurrency } = useCurrencyStore();
 
-    // Assume input balance is always in USD for this mock demo, or respect baseCurrencyProp if passed
-    // But store logic assumes Base=USD. Let's assume balance is USD.
-    const displayBalance = convertAndFormat(balance, 'USD');
-    const rate = getRate(currentCurrency);
+    // Display balance in user's selected currency
+    const displayBalance = formatCurrency(balance || 0, currentCurrency);
 
     // 3D Tilt Logic
     const x = useMotionValue(0);
@@ -104,16 +103,6 @@ const HeroCard = ({ balance, currency: baseCurrencyProp, onDeposit, onWithdraw, 
                                     {showBalance ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
                             </div>
-
-                            {/* Exchange Rate Metadata */}
-                            {currentCurrency !== 'USD' && (
-                                <motion.div
-                                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                                    className="text-xs text-white/40 font-mono"
-                                >
-                                    1 USD ≈ {rate.toFixed(2)} {currentCurrency}
-                                </motion.div>
-                            )}
                         </div>
 
                         <div className="flex flex-col items-end gap-2">

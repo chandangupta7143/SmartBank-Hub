@@ -1,27 +1,18 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { useStore } from '../../store/useStore';
-import { mockAuth } from '../../api/mock/auth';
+import { signupSchema } from '../../validations/authSchemas';
+import { useSignup } from '../../hooks/queries/useAuthQueries';
 import { useState } from 'react';
-
-const signupSchema = z.object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(6, 'Password must be at least 6 characters'),
-    confirmPassword: z.string()
-}).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-});
 
 const Signup = () => {
     const navigate = useNavigate();
-    const { login } = useStore();
     const [error, setError] = useState('');
+
+    // Use React Query mutation
+    const signupMutation = useSignup();
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(signupSchema)
@@ -30,8 +21,11 @@ const Signup = () => {
     const onSubmit = async (data) => {
         try {
             setError('');
-            const user = await mockAuth.signup(data.name, data.email, data.password);
-            login(user);
+            await signupMutation.mutateAsync({
+                name: data.name,
+                email: data.email,
+                password: data.password
+            });
             navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Signup failed');

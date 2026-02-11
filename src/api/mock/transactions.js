@@ -40,6 +40,13 @@ export const mockTransactions = {
     },
 
     transfer: async (amount, recipientId, idempotencyKey) => {
+        // 0. Demo Restriction Check
+        const currentUser = getStore().user;
+        if (currentUser?.email === 'demo@smartbank.com') {
+            // Return a specific error structure that UI can catch or just throw
+            throw new Error('It is just a demo account. You create a new account for transaction.');
+        }
+
         // 1. Idempotency Check
         const allTxs = getStore().transactions || [];
         if (allTxs.some(t => t.idempotencyKey === idempotencyKey)) {

@@ -2,16 +2,29 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { v4 as uuidv4 } from 'uuid';
 
-// Mock Data Generators
-const generateMockUsers = () => [
-    { id: '1', name: 'Alice Johnson', email: 'alice@example.com', role: 'user', kycStatus: 'verified', balance: 1250.50, status: 'active', joined: '2023-11-15' },
-    { id: '2', name: 'Bob Smith', email: 'bob@example.com', role: 'user', kycStatus: 'pending', balance: 0.00, status: 'locked', joined: '2023-12-01' },
-    { id: '3', name: 'User 3', email: 'user3@example.com', role: 'user', kycStatus: 'rejected', balance: 50.00, status: 'active', joined: '2023-12-10' },
-];
+import { MockDB, STORAGE_KEYS } from '../../api/mock/db';
 
-const generateMockKYC = () => [
-    { id: 'kyc-1', userId: '2', name: 'Bob Smith', docType: 'Passport', status: 'pending', submittedAt: '2023-12-02T10:00:00Z' },
-];
+// Helper to sync users from main DB to Admin view
+const getSyncedUsers = () => {
+    try {
+        const dbUsers = MockDB.get(STORAGE_KEYS.USERS) || [];
+        return dbUsers.map(u => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            // Default admin view props if not present
+            kycStatus: u.kycStatus || 'pending',
+            balance: u.balance || 0.00,
+            status: u.status || 'active',
+            joined: u.createdAt || new Date().toISOString()
+        }));
+    } catch (e) {
+        return [];
+    }
+};
+
+const generateMockKYC = () => []; // Clear mock KYC for now
 
 const generateAuditLogs = () => [
     { id: 'log-1', admin: 'superadmin', action: 'SYSTEM_INIT', target: 'System', details: 'Admin portal initialized', timestamp: new Date().toISOString() }
@@ -26,7 +39,7 @@ export const useAdminStore = create(
             isAdminAuthenticated: false,
 
             // --- Mock Database State ---
-            users: generateMockUsers(),
+            users: getSyncedUsers(),
             kycQueue: generateMockKYC(),
             auditLogs: generateAuditLogs(),
             settings: {
@@ -43,11 +56,12 @@ export const useAdminStore = create(
             // Auth
             login: (email, password) => {
                 // Mock Login - Hardcoded for demo
-                if (email === 'admin@fusion.com' && password === 'admin123') {
+                if (email === 'chandangupta7143@gmail.com' && password === '#Chandangupta@7143') {
                     set({
                         adminToken: 'mock-admin-token-' + Date.now(),
                         adminUser: { id: 'admin-1', name: 'Super Admin', role: 'super-admin' },
-                        isAdminAuthenticated: true
+                        isAdminAuthenticated: true,
+                        users: getSyncedUsers() // Refresh list on login
                     });
                     get().logAction('LOGIN', 'Self', 'Admin logged in');
                     return true;
@@ -123,6 +137,15 @@ export const useAdminStore = create(
         {
             name: 'fusion-admin-storage', // Separate from user storage
             storage: createJSONStorage(() => localStorage),
+            version: 2, // Bump version to invalidate old cache (Alice/Bob)
+            partialize: (state) => ({
+                // Only persist auth state and settings, NOT the users list (it should always sync from DB)
+                adminToken: state.adminToken,
+                adminUser: state.adminUser,
+                isAdminAuthenticated: state.isAdminAuthenticated,
+                settings: state.settings,
+                auditLogs: state.auditLogs
+            }),
         }
     )
 );

@@ -13,8 +13,8 @@ const STORAGE_KEYS = {
 
 // Seed Data
 const SEED_USERS = [
-    { id: 'u1', email: 'admin@smartbank.com', password: 'admin123', name: 'Admin User', role: 'admin' },
-    { id: 'u2', email: 'demo@smartbank.com', password: 'password', name: 'Demo User', role: 'user' }
+    { id: 'u1', email: 'chandangupta7143@gmail.com', password: '#Chandangupta@7143', name: 'Admin User', role: 'admin' },
+    { id: 'u2', email: 'demo@smartbank.com', password: 'demo', name: 'Demo User', role: 'user' }
 ];
 
 const SEED_CONTACTS = [

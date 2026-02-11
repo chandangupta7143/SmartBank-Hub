@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useWallet } from '../hooks/useWallet';
+import { useWalletBalance, useDeposit, useWithdraw } from '../hooks/queries/useWalletQueries';
 import { useStore } from '../store/useStore';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { getCurrencySymbol, formatCurrency } from '../utils/currency';
@@ -18,9 +18,14 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 
 const Overview = () => {
-    const { balance, currency, deposit, withdraw } = useWallet();
+    const { data: walletData, isLoading: isBalanceLoading } = useWalletBalance();
+    const { mutateAsync: deposit } = useDeposit();
+    const { mutateAsync: withdraw } = useWithdraw();
     const { user } = useStore();
-    const { currentCurrency, getRate } = useCurrencyStore();
+    const { currentCurrency } = useCurrencyStore();
+
+    const balance = walletData || 0;
+    const currency = 'USD'; // Base currency
 
     // UI State
     const [greeting, setGreeting] = useState('');
@@ -148,16 +153,16 @@ const Overview = () => {
                                 // We call the handler with the base amount, but we need to override the handler logic 
                                 // or just do it inline here since handleTransaction uses `amount` state directly.
                                 // Actually, handleTransaction uses `amount` state. We should update the handler or 
-                                // passing the converted amount.
-                                // Let's simplify: call deposit/withdraw with baseAmount.
+                                // The currency conversion logic is removed as per instruction.
+                                // We will now directly use the 'amount' state, parsed as a float.
 
                                 if (!amount || isNaN(amount)) return;
                                 setIsProcessing(true);
                                 try {
                                     if (modalOpen === 'deposit') {
-                                        deposit(baseAmount);
+                                        deposit(parseFloat(amount));
                                     } else {
-                                        withdraw(baseAmount);
+                                        withdraw(parseFloat(amount));
                                     }
                                     setModalOpen(null);
                                     setAmount('');
@@ -184,11 +189,9 @@ const Overview = () => {
                                             className="pl-14 text-3xl font-bold bg-white/5 border-white/10 focus:border-brand-primary/50 text-white h-16 rounded-2xl"
                                         />
                                     </div>
-                                    {amount && currentCurrency !== 'USD' && (
-                                        <div className="text-right text-xs text-white/40 font-mono">
-                                            ≈ {formatCurrency(parseFloat(amount) / getRate(currentCurrency), 'USD')}
-                                        </div>
-                                    )}
+                                    <div className="text-xs text-white/50 text-center">
+                                        Amount in {currentCurrency}
+                                    </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <Button type="button" variant="ghost" onClick={() => setModalOpen(null)} className="h-12 flex-1 rounded-xl text-white/60 hover:text-white hover:bg-white/10">

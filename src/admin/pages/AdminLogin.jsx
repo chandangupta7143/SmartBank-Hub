@@ -18,7 +18,7 @@ const AdminLogin = () => {
         if (login(email, password)) {
             navigate('/admin/dashboard');
         } else {
-            setError('Invalid credentials. Try admin@fusion.com / admin123');
+            setError('Invalid credentials. Access Denied.');
         }
     };
 
@@ -57,7 +57,7 @@ const AdminLogin = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-red-500/50 focus:outline-none transition-colors"
-                                placeholder="admin@fusion.com"
+                                placeholder="admin@smartbank.com"
                             />
                         </div>
                         <div className="space-y-1">

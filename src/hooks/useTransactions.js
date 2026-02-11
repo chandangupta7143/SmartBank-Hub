@@ -1,11 +1,10 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { mockTransactions } from '../api/mock/transactions';
+// NOTE: This hook is deprecated and replaced by hooks/queries/useTransactionQueries.js
+// Keeping for backward compatibility during transition
+// TODO: Remove this file after all components are updated
 
-export const useTransactions = () => {
-    return useInfiniteQuery({
-        queryKey: ['transactions'],
-        queryFn: mockTransactions.getList,
-        getNextPageParam: (lastPage) => lastPage.nextPage,
-        initialPageParam: 0,
-    });
-};
+import { useTransactions as useTransactionQueries } from './queries/useTransactionQueries';
+
+/**
+ * @deprecated Use hooks/queries/useTransactionQueries instead
+ */
+export const useTransactions = useTransactionQueries;

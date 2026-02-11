@@ -16,7 +16,7 @@ const StatCard = ({ title, value, change, icon: Icon, color }) => (
 );
 
 const AdminDashboard = () => {
-    const { users, kycQueue, settings } = useAdminStore();
+    const { users, kycQueue, settings, auditLogs } = useAdminStore(); // Get auditLogs
 
     const activeUsers = users.filter(u => u.status === 'active').length;
     const pendingKYC = kycQueue.length;
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">System Overview</h1>
-                    <p className="text-gray-400">Monitoring {users.length} mock users and mock system health.</p>
+                    <p className="text-gray-400">Monitoring {users.length} users and system health.</p>
                 </div>
                 <div className="flex gap-2">
                     <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2">
@@ -80,27 +80,18 @@ const AdminDashboard = () => {
                         <Activity className="text-red-500" size={18} /> Recent System Actions
                     </h3>
                     <div className="space-y-4">
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/5 flex justify-between items-center">
-                            <div className="text-sm">
-                                <span className="text-red-400 font-mono text-xs">[SYSTEM]</span>
-                                <span className="text-gray-400 ml-2">Hourly rate sync completed</span>
+                        {auditLogs.slice(0, 5).map(log => (
+                            <div key={log.id} className="p-4 bg-white/5 rounded-lg border border-white/5 flex justify-between items-center">
+                                <div className="text-sm">
+                                    <span className="text-blue-400 font-mono text-xs">[{log.action}]</span>
+                                    <span className="text-gray-400 ml-2">{log.details}</span>
+                                </div>
+                                <span className="text-xs text-gray-600">{new Date(log.timestamp).toLocaleTimeString()}</span>
                             </div>
-                            <span className="text-xs text-gray-600">2m ago</span>
-                        </div>
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/5 flex justify-between items-center">
-                            <div className="text-sm">
-                                <span className="text-blue-400 font-mono text-xs">[AUTH]</span>
-                                <span className="text-gray-400 ml-2">User #4299 failed login (x3)</span>
-                            </div>
-                            <span className="text-xs text-gray-600">15m ago</span>
-                        </div>
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/5 flex justify-between items-center">
-                            <div className="text-sm">
-                                <span className="text-green-400 font-mono text-xs">[MOCK]</span>
-                                <span className="text-gray-400 ml-2">Database seeded successfully</span>
-                            </div>
-                            <span className="text-xs text-gray-600">1h ago</span>
-                        </div>
+                        ))}
+                        {auditLogs.length === 0 && (
+                            <div className="text-center text-gray-500 text-xs py-4">No recent activity</div>
+                        )}
                     </div>
                 </div>
 

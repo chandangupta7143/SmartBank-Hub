@@ -1,23 +1,25 @@
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import safeStorage from '../utils/storage';
 
-import { create } from 'zustand'
-import { persist, createJSONStorage } from 'zustand/middleware'
-import safeStorage from '../utils/storage'
-
-// Factory function to ensure fresh state references every time
-const getInitialUserState = () => ({
-    wallet: {
-        balance: 0,
-        currency: 'USD',
-    },
-    transactions: [],
-    notifications: [],
-    showPrivacyMode: false,
-});
+/**
+ * Main UI State Store
+ * 
+ * IMPORTANT: This store should ONLY contain UI/client-side state.
+ * Server data (wallet, transactions, etc.) should be managed by React Query hooks.
+ * 
+ * This store manages:
+ * - Theme preferences
+ * - Authentication UI state (user info, auth status)
+ * - UI preferences (privacy mode, etc.)
+ */
 
 export const useStore = create(
     persist(
         (set, get) => ({
-            // Theme State
+            // ============================================
+            // THEME STATE (UI Only)
+            // ============================================
             theme: 'dark',
             toggleTheme: () => set((state) => {
                 const newTheme = state.theme === 'dark' ? 'light' : 'dark';
@@ -25,115 +27,65 @@ export const useStore = create(
                 return { theme: newTheme };
             }),
 
-            // Auth State
-            user: null, // { id, name, email, avatar }
+            // ============================================
+            // AUTHENTICATION STATE (UI Only)
+            // ============================================
+            user: null, // { id, name, email, token, role, avatar }
             isAuthenticated: false,
 
-            // Enhanced Login: Load user-specific data
+            /**
+             * Login user - updates authentication state
+             * NOTE: Actual API call happens in authService
+             */
             login: (user) => {
                 console.log(`[Store] Logging in user: ${user.email} (${user.id})`);
-
-                // 1. Try to load saved data for this user
-                const storageKey = `smartbank_data_${user.id} `;
-                const savedDataJson = localStorage.getItem(storageKey);
-
-                // 2. Start with FRESH default state (Deep Copy effectively)
-                let userSpecificState = getInitialUserState();
-
-                if (savedDataJson) {
-                    try {
-                        console.log(`[Store] Found saved data for ${user.id}`);
-                        const parsed = JSON.parse(savedDataJson);
-                        // Merge saved data with defaults to ensure structure
-                        userSpecificState = { ...userSpecificState, ...parsed };
-                    } catch (e) {
-                        console.error("Failed to load user data", e);
-                    }
-                } else {
-                    console.log(`[Store] No saved data for ${user.id}, starting fresh.`);
-                }
-
-                // 3. Atomically set new state
                 set({
                     user,
-                    isAuthenticated: true,
-                    ...userSpecificState
+                    isAuthenticated: true
                 });
             },
 
-            // Enhanced Logout: Save user data and reset
+            /**
+             * Logout user - clears authentication state
+             * NOTE: Does NOT save/restore wallet data anymore
+             * Server data is managed by React Query
+             */
             logout: () => {
-                const state = get();
-                const currentUser = state.user;
-
-                if (currentUser && currentUser.id) {
-                    console.log(`[Store] Logging out user: ${currentUser.email} `);
-                    // 1. Save current user data
-                    const dataToSave = {
-                        wallet: state.wallet,
-                        transactions: state.transactions,
-                        notifications: state.notifications,
-                        showPrivacyMode: state.showPrivacyMode
-                    };
-                    const storageKey = `smartbank_data_${currentUser.id} `;
-                    localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-                }
-
-                // 2. Reset state to FRESH defaults
-                console.log(`[Store] Resetting state to defaults.`);
+                console.log(`[Store] Logging out user`);
                 set({
                     user: null,
                     isAuthenticated: false,
-                    ...getInitialUserState()
+                    showPrivacyMode: false // Reset UI preferences on logout
                 });
             },
 
-            // Wallet State (Mock)
-            wallet: getInitialUserState().wallet,
-            setBalance: (amount) => set((state) => ({
-                wallet: { ...state.wallet, balance: amount }
-            })),
-            setCurrency: (currency) => set((state) => ({
-                wallet: { ...state.wallet, currency }
-            })),
-
-            // Transactions State
-            transactions: getInitialUserState().transactions,
-            addTransaction: (tx) => set((state) => ({
-                transactions: [tx, ...state.transactions],
-                // Update balance if compiled
-                wallet: {
-                    ...state.wallet,
-                    balance: tx.type === 'deposit' || tx.type === 'income'
-                        ? state.wallet.balance + parseFloat(tx.amount)
-                        : state.wallet.balance - parseFloat(tx.amount)
-                }
-            })),
-            setTransactions: (txs) => set({ transactions: txs }),
-
-            // Notifications State
-            notifications: getInitialUserState().notifications,
-            addNotification: (note) => set((state) => ({ notifications: [note, ...state.notifications] })),
-            clearNotifications: () => set({ notifications: [] }),
-            markNotificationRead: (id) => set((state) => ({
-                notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
-            })),
-
-            // Preferences
-            showPrivacyMode: getInitialUserState().showPrivacyMode,
-            togglePrivacyMode: () => set((state) => ({ showPrivacyMode: !state.showPrivacyMode })),
+            // ============================================
+            // UI PREFERENCES
+            // ============================================
+            showPrivacyMode: false,
+            togglePrivacyMode: () => set((state) => ({
+                showPrivacyMode: !state.showPrivacyMode
+            }))
         }),
         {
             name: 'smartbank-storage',
             storage: createJSONStorage(() => safeStorage),
-            version: 3,
+            version: 4, // Incremented version to clear old state
+            partialize: (state) => ({
+                // Only persist these UI-related fields
+                theme: state.theme,
+                user: state.user,
+                isAuthenticated: state.isAuthenticated,
+                showPrivacyMode: state.showPrivacyMode
+            }),
             migrate: (persistedState, version) => {
-                if (version < 3) {
+                // Migration for old versions - clean slate
+                if (version < 4) {
                     return {
                         theme: 'dark',
                         user: null,
                         isAuthenticated: false,
-                        ...getInitialUserState()
+                        showPrivacyMode: false
                     };
                 }
                 return persistedState;
@@ -145,4 +97,4 @@ export const useStore = create(
             }
         }
     )
-)
+);
