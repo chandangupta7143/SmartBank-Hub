@@ -1,74 +1,137 @@
-# Fusion Finance Frontend
+# 🏦 SmartBank Hub
 
-## 💱 Global Currency System
+> A Secure Java Full Stack Banking Application built with React, Spring Boot, and MySQL.
 
-The application uses a robust, live-rate currency conversion system.
-- **Default Currency**: INR (₹)
-- **Base Currency**: USD
-- **Provider**: `exchangerate.host` (or configurable)
+---
 
-### Configuration
-Manage settings in `.env`:
-```env
-VITE_EXCHANGE_API_URL=https://api.exchangerate.host/latest
-VITE_USE_MOCKS=false # Set true to force offline mode
-VITE_EXCHANGE_CACHE_TTL_MS=600000 # Cache duration (10 mins)
-```
+## 🚀 Overview
 
-### Dev Tools
-- **Mock Mode**: If API fails or `VITE_USE_MOCKS=true`, the app provides realistic mock rates (USD=1, INR=83.5, EUR=0.92).
-- **Reset**: Use the "Reset App Data" in the Error Boundary or clear LocalStorage manually if rates get stuck.
+SmartBank Hub is a secure and scalable banking system that supports:
 
-A high-fidelity banking frontend built with React, Vite, Tailwind CSS v4, and Mock Data.
+- 🔐 User Registration & JWT Authentication  
+- 💳 Account Management  
+- 💸 Secure Fund Transfers  
+- 📜 Transaction History  
+- 🛡 Role-Based Access Control  
+- ⚙ Backend Safeguards for Balance Integrity  
 
-## 🚀 Quick Start
+The system is designed using modern full-stack architecture and production-ready practices.
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+---
 
-2. **Run Development Server**
-   ```bash
-   npm run dev
-   ```
-   Open [http://localhost:5173](http://localhost:5173)
+## 🛠 Tech Stack
 
-## 🛠 Features (Fully Functional Mock Mode)
-- **Auth**: Mock Login/Signup (no backend required).
-- **Wallet**: Deposit/Withdraw simulation with loading states.
-- **Transactions**: Infinite scroll history & live incoming websocket simulation.
-- **P2P Transfer**: 
-    - **Idempotency**: Prevents double-spending.
-    - **Concurrency Test**: Simulate rapid double-clicks to verify safe locking.
-- **QR Pay**: Generate personal codes and simulate scanning/payment.
-- **Contacts**: Searchable list with Optimistic UI updates + Undo capability.
-- **Admin**: Mock data management and balance overrides.
-- **Theme**: Premium Dark/Light mode toggle.
+### 🔹 Frontend
+- React.js (Vite)
+- React Router
+- Axios (with interceptors)
+- TanStack React Query (Server State)
+- React Hook Form
+- Zod (Validation)
+- Tailwind CSS
+- Framer Motion
 
-### 🔐 Admin Portal (New)
-The system includes an isolated Admin Portal for managing users, wallets, and KYC.
-- **URL**: `/admin/login`
-- **Credentials**:
-  - Email: `admin@fusion.com`
-  - Password: `admin123`
+### 🔹 Backend
+- Spring Boot
+- Spring Security
+- JWT Authentication
+- RESTful APIs
+- JPA / Hibernate
+- MySQL
 
-## 🧪 Testing
-Run unit tests with Vitest:
+### 🔹 DevOps
+- Docker
+- Docker Compose
+- Nginx
+
+---
+
+
+
+
+
+## 🔐 Security Features
+
+- JWT-based Authentication
+- Password Encryption
+- Role-Based Authorization
+- Protected REST Endpoints
+- Backend Balance Validation
+- Controlled Transaction Processing
+
+---
+
+## ⚙️ Installation & Setup
+
+
+
+### 2️⃣ Install Frontend Dependencies
+
 ```bash
-npm test
+npm install
 ```
 
-## 🏗 Project Structure
-- `src/api/mock`: Contains mock backend logic.
-- `src/store`: Global state (Zustand).
-- `src/pages`: Application views.
-- `src/components/ui`: Reusable design system components.
-- `src/hooks`: Logic encapsulation (useWallet, useSocketMock, etc).
+### 3️⃣ Configure Environment
 
-## 🐳 Docker
-Build and run with Docker:
+Create a `.env` file using:
+
 ```bash
-docker build -t smartbank-frontend .
-docker run -p 5173:5173 smartbank-frontend
+cp .env.example .env
 ```
+
+Add backend API base URL and other required variables.
+
+---
+
+### 4️⃣ Run Frontend (Development)
+
+```bash
+npm run dev
+```
+
+---
+
+### 5️⃣ Run with Docker
+
+```bash
+docker-compose up --build
+```
+
+---
+
+## 🧠 Core Modules
+
+- Authentication Module
+- Account Management
+- Transaction Module
+- Balance Reconciliation
+- Role-Based Access Control
+
+---
+
+## 📈 Future Improvements
+
+- Admin Dashboard
+- Two-Factor Authentication
+- Email Notifications
+- Audit Logs
+- CI/CD Integration
+
+---
+
+## 👨‍💻 Author
+
+**Chandan Gupta**  
+Java Full Stack Developer  
+Focused on Secure & Scalable System Design
+
+---
+
+## ⭐ Why This Project?
+
+This project demonstrates:
+
+- Full-Stack Development Expertise  
+- Secure Financial System Design  
+- Clean Architecture Principles  
+- Production-Ready Deployment Setup  
