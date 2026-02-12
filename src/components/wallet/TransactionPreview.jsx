@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
 import { Coffee, ShoppingBag, Zap, ArrowUpRight } from 'lucide-react';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
+import { formatCurrency } from '../../utils/currency';
 
 const TransactionItem = ({ icon: Icon, title, date, amount, category, color }) => {
-    const { convertAndFormat } = useCurrencyStore();
 
     return (
         <motion.div
@@ -22,7 +21,7 @@ const TransactionItem = ({ icon: Icon, title, date, amount, category, color }) =
                 </div>
             </div>
             <div className="text-right">
-                <p className="font-bold text-white text-sm">-{convertAndFormat(amount, 'USD')}</p>
+                <p className="font-bold text-white text-sm">-{formatCurrency(amount)}</p>
             </div>
         </motion.div>
     );

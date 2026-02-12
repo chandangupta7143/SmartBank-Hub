@@ -4,7 +4,6 @@ import { Bell, UserCircle, ChevronDown, LogOut, Settings as SettingsIcon, HelpCi
 import { Button } from '../ui/Button';
 import PremiumAuthButton from '../ui/PremiumAuthButton';
 import { useAuth } from '../../hooks/useAuth';
-import CurrencySelector from '../CurrencySelector';
 import { NOTIFICATIONS, PROFILE_MENU } from '../../mocks/nav-mock';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,11 +20,6 @@ const UtilityCluster = () => {
 
     return (
         <div className="flex items-center gap-3 sm:gap-4">
-            {/* Currency Selector */}
-            <div className="hidden sm:block">
-                <CurrencySelector />
-            </div>
-
             {/* Notifications */}
             <div className="relative">
                 <button

@@ -2,10 +2,9 @@ import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Copy, Wifi } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '../../utils/cn';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
+import { formatCurrency } from '../../utils/currency';
 
 const PremiumCard = ({ balance, currency = 'USD', holderName = 'My Account' }) => {
-    const { convertAndFormat } = useCurrencyStore();
     const [showBalance, setShowBalance] = useState(true);
 
     // 3D Tilt Logic
@@ -118,7 +117,7 @@ const PremiumCard = ({ balance, currency = 'USD', holderName = 'My Account' }) =
                                         key="bal"
                                         className="text-xl md:text-2xl font-bold tracking-tight text-white drop-shadow-lg"
                                     >
-                                        {convertAndFormat(balance, currency)}
+                                        {formatCurrency(balance)}
                                     </motion.p>
                                 ) : (
                                     <motion.div

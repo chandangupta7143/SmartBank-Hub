@@ -3,15 +3,11 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid } f
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Calendar } from 'lucide-react';
 import { format, subDays, subWeeks, startOfWeek } from 'date-fns';
-import { formatCurrency, getCurrencySymbol } from '../../utils/currency';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
+import { formatCurrency } from '../../utils/currency';
 import { useTransactions } from '../../hooks/queries/useTransactionQueries';
-import { useCurrencyConversion } from '../../hooks/queries/useCurrencyQueries';
 
 const SpendingChart = () => {
     const { data: transactionsData } = useTransactions();
-    const { currentCurrency } = useCurrencyStore();
-    const { convertAmount } = useCurrencyConversion();
 
     // Extract all transactions from paginated structure with proper null checks
     const transactions = transactionsData?.pages
@@ -52,12 +48,9 @@ const SpendingChart = () => {
             }
         });
 
-        // Convert to target currency (convertAmount returns the converted value)
-        return buckets.map(b => ({
-            ...b,
-            val: convertAmount ? convertAmount(b.val, 'USD', currentCurrency) : b.val
-        }));
-    }, [timeframe, transactions, convertAmount, currentCurrency]);
+        // Return buckets with values already in base currency
+        return buckets;
+    }, [timeframe, transactions]);
 
     const total = data.reduce((acc, curr) => acc + curr.val, 0);
 
@@ -73,7 +66,7 @@ const SpendingChart = () => {
                 <div>
                     <h3 className="text-sm font-medium text-app-text-muted mb-1">Total Spent This Week</h3>
                     <p className="text-3xl font-bold tracking-tight">
-                        {formatCurrency(total, currentCurrency)}
+                        {formatCurrency(total)}
                     </p>
                     <div className="flex items-center gap-1 mt-1 text-xs">
                         <TrendingDown className="text-status-success" size={14} />
@@ -125,7 +118,7 @@ const SpendingChart = () => {
                             }}
                             itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
                             cursor={{ stroke: '#4F9DFF', strokeWidth: 1, strokeDasharray: '4 4' }}
-                            formatter={(value) => [formatCurrency(value, currentCurrency), 'Spent']}
+                            formatter={(value) => [formatCurrency(value), 'Spent']}
                         />
                         <Area
                             type="monotone"

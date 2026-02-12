@@ -5,8 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { useStore } from '../store/useStore';
 import { useWalletBalance, useDeposit, useWithdraw } from '../hooks/queries/useWalletQueries';
-import { useCurrencyStore } from '../store/useCurrencyStore';
-import { getCurrencySymbol, formatCurrency } from '../utils/currency';
+import { formatCurrency } from '../utils/currency';
 import PremiumCard from '../components/wallet/PremiumCard';
 import WalletActions from '../components/wallet/WalletActions';
 import BalanceLimits from '../components/wallet/BalanceLimits';
@@ -17,8 +16,7 @@ const Wallet = () => {
     const { data: balance = 0, isLoading: isBalanceLoading, error: balanceError } = useWalletBalance();
     const { mutate: deposit } = useDeposit();
     const { mutate: withdraw } = useWithdraw();
-    const { convertAndFormat } = useCurrencyStore();
-
+    
     // Handlers (Connected to existing logic + Toasts)
     const handleDeposit = () => {
         // Trigger deposit modal (if exists) or just mock toast for now

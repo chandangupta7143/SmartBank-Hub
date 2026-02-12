@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
 import { formatDistanceToNow } from 'date-fns';
 import { useTransactions } from '../../hooks/queries/useTransactionQueries';
-import { getCurrencySymbol } from '../../utils/currency';
+import { formatCurrency } from '../../utils/currency';
 
 const LiveFeed = () => {
     // Use React Query to get transactions
@@ -71,7 +70,6 @@ const LiveFeed = () => {
 };
 
 const FeedItem = ({ tx }) => {
-    const { convertAndFormat } = useCurrencyStore();
 
     return (
         <motion.div
@@ -96,7 +94,7 @@ const FeedItem = ({ tx }) => {
             </div>
             <div className="text-right">
                 <p className={`text-sm font-bold ${tx.type === 'income' ? 'text-status-success' : 'text-white'}`}>
-                    {tx.type === 'income' ? '+' : '-'}{convertAndFormat(tx.amount || tx.value || 0, 'USD')}
+                    {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount || tx.value || 0)}
                 </p>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/5">
                     {tx.category || 'General'}

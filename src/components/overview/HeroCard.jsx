@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Eye, EyeOff, Copy, ArrowUpRight, ArrowDownLeft, Send, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
 import { formatCurrency } from '../../utils/currency';
 
 const HeroCard = ({ balance, currency: baseCurrencyProp, onDeposit, onWithdraw, onSend }) => {
     const [showBalance, setShowBalance] = useState(true);
-    const { currentCurrency } = useCurrencyStore();
-
+    
     // Display balance in user's selected currency
-    const displayBalance = formatCurrency(balance || 0, currentCurrency);
+    const displayBalance = formatCurrency(balance || 0);
 
     // 3D Tilt Logic
     const x = useMotionValue(0);

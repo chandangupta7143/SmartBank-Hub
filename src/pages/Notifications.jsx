@@ -3,7 +3,8 @@ import { Bell, Check, Info, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 
 const Notifications = () => {
-    const { notifications, clearNotifications } = useStore();
+    // Mock notifications - in real app, would come from React Query
+    const notifications = [];
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -11,11 +12,6 @@ const Notifications = () => {
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <Bell className="text-brand-primary" /> Notifications
                 </h1>
-                {notifications.length > 0 && (
-                    <button onClick={clearNotifications} className="text-sm text-app-text-muted hover:text-white transition-colors">
-                        Clear All
-                    </button>
-                )}
             </div>
 
             {notifications.length === 0 ? (

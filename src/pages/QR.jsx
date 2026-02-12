@@ -2,25 +2,18 @@ import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useAuth } from '../hooks/useAuth';
 import { useStore } from '../store/useStore';
-import { useCurrencyStore } from '../store/useCurrencyStore';
-import { convertAmount } from '../utils/currencyMath';
 import { Copy, Share2, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
 
 const QR = () => {
     const { user } = useAuth();
     const { wallet } = useStore();
-    const { currentCurrency, getRate } = useCurrencyStore();
 
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
 
-    // Generate Secure Payload with Converted Amount
-    const rate = getRate(currentCurrency);
-    const convertedAmount = amount ? convertAmount(parseFloat(amount), rate) : 0;
-
     // Payload Format: fusion://pay?pa=ADDRESS&pn=NAME&am=AMOUNT&cu=CURRENCY&tn=NOTE
-    const payload = `fusion://pay?pa=${user?.walletId || '0x71...9A23'}&pn=${encodeURIComponent(user?.name || 'User')}&am=${convertedAmount.toFixed(2)}&cu=${currentCurrency}&tn=${encodeURIComponent(note)}`;
+    const payload = `fusion://pay?pa=${user?.walletId || '0x71...9A23'}&pn=${encodeURIComponent(user?.name || 'User')}&am=${amount || '0'}&cu=INR&tn=${encodeURIComponent(note)}`;
 
     const handleCopy = () => {
         navigator.clipboard.writeText(payload);
@@ -50,7 +43,7 @@ const QR = () => {
                 {/* Amount Input */}
                 <div className="w-full space-y-4 relative z-10">
                     <div>
-                        <label className="text-xs font-bold text-app-text-muted uppercase tracking-wider block mb-2">Amount ({currentCurrency})</label>
+                        <label className="text-xs font-bold text-app-text-muted uppercase tracking-wider block mb-2">Amount (INR)</label>
                         <input
                             type="number"
                             step="0.01"
@@ -83,7 +76,7 @@ const QR = () => {
             </div>
 
             <div className="mt-8 text-center text-app-text-muted text-sm max-w-md">
-                <p>Scan this QR code with any Fusion Finance compatible wallet to receive {amount ? `${currentCurrency} ${parseFloat(amount).toFixed(2)}` : 'payments'}.</p>
+                <p>Scan this QR code with any Fusion Finance compatible wallet to receive {amount ? `₹${parseFloat(amount).toFixed(2)}` : 'payments'}.</p>
                 <p className="mt-2 opacity-50 text-xs">Payment Address: {user?.walletId || '0x71...9A23'}</p>
             </div>
         </div>

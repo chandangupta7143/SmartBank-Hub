@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useWalletBalance, useDeposit, useWithdraw } from '../hooks/queries/useWalletQueries';
 import { useStore } from '../store/useStore';
-import { useCurrencyStore } from '../store/useCurrencyStore';
-import { getCurrencySymbol, formatCurrency } from '../utils/currency';
+import { formatCurrency } from '../utils/currency';
 
 // Premium Components
 import HeroCard from '../components/overview/HeroCard';
@@ -22,7 +21,6 @@ const Overview = () => {
     const { mutateAsync: deposit } = useDeposit();
     const { mutateAsync: withdraw } = useWithdraw();
     const { user } = useStore();
-    const { currentCurrency } = useCurrencyStore();
 
     const balance = walletData || 0;
     const currency = 'USD'; // Base currency
@@ -146,15 +144,6 @@ const Overview = () => {
 
                             <form onSubmit={(e) => {
                                 e.preventDefault();
-                                // Convert input (Display Currency) -> Base (USD)
-                                const rate = getRate(currentCurrency);
-                                const baseAmount = parseFloat(amount) / rate;
-
-                                // We call the handler with the base amount, but we need to override the handler logic 
-                                // or just do it inline here since handleTransaction uses `amount` state directly.
-                                // Actually, handleTransaction uses `amount` state. We should update the handler or 
-                                // The currency conversion logic is removed as per instruction.
-                                // We will now directly use the 'amount' state, parsed as a float.
 
                                 if (!amount || isNaN(amount)) return;
                                 setIsProcessing(true);
@@ -174,11 +163,11 @@ const Overview = () => {
                             }}>
                                 <div className="mb-8 space-y-3">
                                     <label className="text-xs font-bold text-app-text-muted uppercase tracking-widest pl-1">
-                                        Enter Amount ({currentCurrency})
+                                        Enter Amount (INR)
                                     </label>
                                     <div className="relative group">
                                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl font-light">
-                                            {getCurrencySymbol(currentCurrency)}
+                                            ₹
                                         </span>
                                         <Input
                                             type="number"
@@ -188,9 +177,6 @@ const Overview = () => {
                                             autoFocus
                                             className="pl-14 text-3xl font-bold bg-white/5 border-white/10 focus:border-brand-primary/50 text-white h-16 rounded-2xl"
                                         />
-                                    </div>
-                                    <div className="text-xs text-white/50 text-center">
-                                        Amount in {currentCurrency}
                                     </div>
                                 </div>
                                 <div className="flex gap-4">

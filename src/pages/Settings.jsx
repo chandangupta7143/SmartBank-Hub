@@ -16,7 +16,7 @@ const TABS = [
 ];
 
 const Settings = () => {
-    const { toggleTheme, theme, wallet, setCurrency } = useStore();
+    const { toggleTheme, theme } = useStore();
     const { user, logout } = useAuth();
     const [activeTab, setActiveTab] = useState('account');
 
@@ -25,6 +25,7 @@ const Settings = () => {
     const [email, setEmail] = useState('user@smartbank.hub');
     const [notifEmail, setNotifEmail] = useState(true);
     const [notifPush, setNotifPush] = useState(true);
+    const [currency, setCurrency] = useState('INR'); // Local state for currency
 
     const handleUpdateProfile = (e) => {
         e.preventDefault();
@@ -165,14 +166,17 @@ const Settings = () => {
                                             <span className="font-medium">Currency</span>
                                         </div>
                                         <select
-                                            value={wallet.currency}
-                                            onChange={(e) => setCurrency(e.target.value)}
+                                            value={currency}
+                                            onChange={(e) => {
+                                                setCurrency(e.target.value);
+                                                toast.success(`Currency changed to ${e.target.value}`);
+                                            }}
                                             className="bg-app-surface-highlight border border-white/10 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-brand-primary"
                                         >
+                                            <option value="INR">INR (₹)</option>
                                             <option value="USD">USD ($)</option>
                                             <option value="EUR">EUR (€)</option>
                                             <option value="GBP">GBP (£)</option>
-                                            <option value="INR">INR (₹)</option>
                                             <option value="JPY">JPY (¥)</option>
                                         </select>
                                     </div>

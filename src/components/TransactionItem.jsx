@@ -1,10 +1,9 @@
 import { ArrowUpRight, ArrowDownLeft, Coffee, DollarSign } from 'lucide-react';
 import { cn } from '../utils/cn';
 import { format } from 'date-fns';
-import { useCurrencyStore } from '../store/useCurrencyStore';
+import { formatCurrency } from '../utils/currency';
 
 const TransactionItem = ({ transaction }) => {
-    const { convertAndFormat } = useCurrencyStore();
     const { type, amount, status, date, description, currency: txCurrency } = transaction;
 
     const isNegative = type === 'payment' || type === 'withdraw' || type === 'transfer';
@@ -34,7 +33,7 @@ const TransactionItem = ({ transaction }) => {
 
             <div className="text-right">
                 <p className={cn("font-bold tracking-tight", colorClass)}>
-                    {isNegative ? '-' : '+'}{convertAndFormat(amount, txCurrency || 'USD')}
+                    {isNegative ? '-' : '+'}{formatCurrency(amount)}
                 </p>
                 <p className={cn(
                     "text-xs font-medium uppercase",

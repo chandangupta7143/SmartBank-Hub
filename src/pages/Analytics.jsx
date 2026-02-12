@@ -1,14 +1,11 @@
 import { useMemo } from 'react';
-import { useStore } from '../store/useStore';
-import { useCurrencyStore } from '../store/useCurrencyStore';
+import { useTransactions } from '../hooks/queries/useTransactionQueries';
 import {
     AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, BarChart, Bar, Legend
+    PieChart, Pie, Cell, Legend
 } from 'recharts';
-import { Download, PieChart as PieIcon, TrendingUp, Calendar } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { toast } from 'sonner';
-import { subDays, format, isSameDay, parseISO } from 'date-fns';
+import { PieChart as PieIcon, TrendingUp, Calendar } from 'lucide-react';
+import { subDays, format, isSameDay } from 'date-fns';
 import { formatCurrency } from '../utils/currency';
 
 const COLORS = {
@@ -21,8 +18,13 @@ const COLORS = {
 };
 
 const Analytics = () => {
-    const { transactions } = useStore();
-    const { currentCurrency } = useCurrencyStore();
+    // Use React Query to get transactions
+    const { data: transactionsData } = useTransactions();
+
+    // Extract all transactions from paginated structure
+    const transactions = transactionsData?.pages
+        ?.flatMap(page => page?.data || [])
+        ?.filter(tx => tx != null) || [];
 
     // Compute Weekly Trend
     const trendData = useMemo(() => {
@@ -72,28 +74,12 @@ const Analytics = () => {
         })).sort((a, b) => b.value - a.value);
     }, [transactions]);
 
-    const handleExport = (format) => {
-        toast.promise(new Promise(resolve => setTimeout(resolve, 1500)), {
-            loading: `Generating ${format} Report...`,
-            success: `Report downloaded as ${format}`,
-            error: 'Export failed'
-        });
-    };
-
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-10">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <TrendingUp className="text-brand-primary" /> Analytics & Insights
                 </h1>
-                <div className="flex gap-2">
-                    <Button variant="ghost" onClick={() => handleExport('CSV')}>
-                        <Download size={18} className="mr-2" /> CSV
-                    </Button>
-                    <Button variant="secondary" onClick={() => handleExport('PDF')}>
-                        <Download size={18} className="mr-2" /> PDF Report
-                    </Button>
-                </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
@@ -121,7 +107,7 @@ const Analytics = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#111', borderColor: '#333', borderRadius: '8px' }}
                                     itemStyle={{ color: '#fff' }}
-                                    formatter={(value) => [formatCurrency(value, currentCurrency), undefined]}
+                                    formatter={(value) => [formatCurrency(value), undefined]}
                                 />
                                 <Area type="monotone" dataKey="income" name="Income" stroke="#00ff9d" fillOpacity={1} fill="url(#colorIncome)" />
                                 <Area type="monotone" dataKey="expense" name="Expenses" stroke="#ff00ff" fillOpacity={1} fill="url(#colorExpense)" />
@@ -155,7 +141,7 @@ const Analytics = () => {
                                     <Tooltip
                                         contentStyle={{ backgroundColor: '#111', borderColor: '#333', borderRadius: '8px' }}
                                         itemStyle={{ color: '#fff' }}
-                                        formatter={(value) => [formatCurrency(value, currentCurrency), undefined]}
+                                        formatter={(value) => [formatCurrency(value), undefined]}
                                     />
                                     <Legend />
                                 </PieChart>
@@ -174,7 +160,7 @@ const Analytics = () => {
                     <div className="glass-panel p-6 rounded-xl border-l-4 border-brand-primary">
                         <h4 className="font-bold text-brand-primary mb-2">Spending Insight</h4>
                         <p className="text-sm text-app-text-muted">
-                            You spent <strong>{formatCurrency(trendData.reduce((acc, curr) => acc + curr.expense, 0), currentCurrency)}</strong> in the last 7 days.
+                            You spent <strong>{formatCurrency(trendData.reduce((acc, curr) => acc + curr.expense, 0))}</strong> in the last 7 days.
                         </p>
                     </div>
                     {/* Only show if we have recurring-looking bills */}

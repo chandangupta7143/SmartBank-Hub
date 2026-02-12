@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion';
-import { useCurrencyStore } from '../../store/useCurrencyStore';
 import { ShieldCheck, AlertCircle } from 'lucide-react';
+import { formatCurrency } from '../../utils/currency';
 
 const LimitBar = ({ label, current, limit, colorClass }) => {
     const percentage = Math.min((current / limit) * 100, 100);
-    const { convertAndFormat } = useCurrencyStore();
 
     return (
         <div className="group">
@@ -12,9 +11,9 @@ const LimitBar = ({ label, current, limit, colorClass }) => {
                 <div>
                     <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">{label}</p>
                     <p className="text-sm text-white font-medium">
-                        {convertAndFormat(current, 'USD')}
+                        {formatCurrency(current)}
                         <span className="text-gray-600 mx-1">/</span>
-                        {convertAndFormat(limit, 'USD')}
+                        {formatCurrency(limit)}
                     </p>
                 </div>
                 <div className="text-right">

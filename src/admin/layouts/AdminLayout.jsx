@@ -1,7 +1,7 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAdminStore } from '../store/useAdminStore';
 import {
-    LayoutDashboard, Users, CreditCard, FileText, Settings, LogOut, ShieldAlert, Activity, FileCheck
+    LayoutDashboard, Users, CreditCard, LogOut, ShieldAlert
 } from 'lucide-react';
 
 const AdminSidebarItem = ({ to, icon: Icon, label }) => {
@@ -10,8 +10,8 @@ const AdminSidebarItem = ({ to, icon: Icon, label }) => {
 
     return (
         <Link to={to} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all mb-1 ${isActive
-                ? 'bg-red-500/10 text-red-500 border border-red-500/20'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+            ? 'bg-red-500/10 text-red-500 border border-red-500/20'
+            : 'text-gray-400 hover:bg-white/5 hover:text-white'
             }`}>
             <Icon size={18} />
             <span className="text-sm font-medium">{label}</span>
@@ -54,14 +54,6 @@ const AdminLayout = () => {
                     <AdminSidebarItem to="/admin/dashboard" icon={LayoutDashboard} label="Dashboard" />
                     <AdminSidebarItem to="/admin/users" icon={Users} label="User Management" />
                     <AdminSidebarItem to="/admin/wallets" icon={CreditCard} label="Wallets & Funds" />
-
-                    <div className="px-4 mt-6 mb-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">Compliance</div>
-                    <AdminSidebarItem to="/admin/kyc" icon={FileCheck} label="KYC Queue" />
-                    <AdminSidebarItem to="/admin/audit" icon={FileText} label="Audit Logs" />
-
-                    <div className="px-4 mt-6 mb-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">System</div>
-                    <AdminSidebarItem to="/admin/activity" icon={Activity} label="Job Activity" />
-                    <AdminSidebarItem to="/admin/settings" icon={Settings} label="Settings" />
                 </div>
 
                 <div className="p-4 border-t border-white/5 bg-red-900/5">

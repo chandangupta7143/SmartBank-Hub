@@ -6,7 +6,6 @@ import {
     ArrowRightLeft,
     QrCode,
     Users,
-    ShieldCheck,
     Settings,
     LogOut,
     TrendingUp
@@ -76,7 +75,7 @@ const Sidebar = () => {
                 </div>
                 <NavItem to="/dashboard/qr" icon={QrCode} label="QR Pay" />
                 <NavItem to="/dashboard/contacts" icon={Users} label="P2P & Contacts" />
-                <NavItem to="/dashboard/delegation" icon={ShieldCheck} label="Delegation" />
+
 
 
             </div>

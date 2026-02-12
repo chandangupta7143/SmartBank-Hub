@@ -3,7 +3,6 @@ import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/Button';
 import { Bell, LogOut, Menu, UserCircle } from 'lucide-react';
 import { useStore } from '../store/useStore';
-import CurrencySelector from './CurrencySelector';
 
 const Header = ({ toggleSidebar }) => {
     const { logout, user } = useAuth();
@@ -32,8 +31,6 @@ const Header = ({ toggleSidebar }) => {
                     <span className="absolute top-2 right-2 w-2 h-2 bg-status-error rounded-full animate-pulse"></span>
                 </Link>
 
-                <CurrencySelector />
-
                 <div className="h-8 w-[1px] bg-white/10 mx-1"></div>
 
                 <div className="flex items-center gap-2">
@@ -49,7 +46,7 @@ const Header = ({ toggleSidebar }) => {
                     <LogOut size={18} />
                 </Button>
             </div>
-        </header>
+        </header >
     );
 };
 

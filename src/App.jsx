@@ -2,7 +2,6 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useStore } from './store/useStore'
 import { useEffect } from 'react'
 import { Toaster } from 'sonner'
-import { useExchangeRates } from './hooks/queries/useCurrencyQueries'
 
 // Layouts
 import AuthLayout from './layouts/AuthLayout'
@@ -19,8 +18,6 @@ import Notifications from './pages/Notifications'
 import Transactions from './pages/Transactions'
 import QR from './pages/QR'
 import Contacts from './pages/Contacts'
-import Delegation from './pages/Delegation'
-// import Admin from './pages/Admin' // Removed
 import Settings from './pages/Settings'
 import Analytics from './pages/Analytics'
 import NotFound from './pages/NotFound'
@@ -30,10 +27,6 @@ import AdminLogin from './admin/pages/AdminLogin'
 import AdminDashboard from './admin/pages/AdminDashboard'
 import AdminUsers from './admin/pages/AdminUsers'
 import AdminWallets from './admin/pages/AdminWallets'
-import AdminKYC from './admin/pages/AdminKYC'
-import AdminAudit from './admin/pages/AdminAudit'
-import AdminActivity from './admin/pages/AdminActivity'
-import AdminSettings from './admin/pages/AdminSettings'
 import { useAdminStore } from './admin/store/useAdminStore'
 
 // Protected Route Wrapper for Users
@@ -60,9 +53,6 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
     const { theme } = useStore();
-
-    // Fetch exchange rates on app load using React Query
-    useExchangeRates('USD');
 
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
@@ -92,10 +82,6 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="wallets" element={<AdminWallets />} />
-                    <Route path="kyc" element={<AdminKYC />} />
-                    <Route path="audit" element={<AdminAudit />} />
-                    <Route path="activity" element={<AdminActivity />} />
-                    <Route path="settings" element={<AdminSettings />} />
                 </Route>
 
                 {/* Protected Dashboard Routes */}
@@ -110,9 +96,6 @@ function App() {
                     <Route path="transactions" element={<Transactions />} />
                     <Route path="qr" element={<QR />} />
                     <Route path="contacts" element={<Contacts />} />
-                    <Route path="delegation" element={<Delegation />} />
-
-                    {/* Admin removed from User Dashboard */}
 
                     <Route path="analytics" element={<Analytics />} />
                     <Route path="settings" element={<Settings />} />

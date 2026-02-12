@@ -2,11 +2,10 @@ import { Copy, Plus, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useState } from 'react';
 import { cn } from '../utils/cn';
-import { useCurrencyStore } from '../store/useCurrencyStore';
+import { formatCurrency } from '../utils/currency';
 
 const WalletCard = ({ balance, currency, onDeposit, onWithdraw }) => {
     const [showNumbers, setShowNumbers] = useState(true);
-    const { convertAndFormat } = useCurrencyStore();
 
     return (
         <div className="w-full relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-brand-primary to-brand-secondary text-white shadow-2xl">
@@ -19,7 +18,7 @@ const WalletCard = ({ balance, currency, onDeposit, onWithdraw }) => {
                     <div>
                         <p className="text-white/80 text-sm font-medium mb-1">Total Balance</p>
                         <h2 className="text-4xl font-bold tracking-tight">
-                            {showNumbers ? convertAndFormat(balance, currency || 'USD') : '••••••'}
+                            {showNumbers ? formatCurrency(balance) : '••••••'}
                         </h2>
                     </div>
                     <button onClick={() => setShowNumbers(!showNumbers)} className="text-white/70 hover:text-white">
